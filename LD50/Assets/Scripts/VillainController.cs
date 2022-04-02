@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VillainMovement : MonoBehaviour
+public class VillainController : MonoBehaviour
 {
     private float speed = 1f;
     private float friction = 0.8f;
@@ -14,7 +14,6 @@ public class VillainMovement : MonoBehaviour
     public Rigidbody2D rb;
     public SpriteRenderer sr;
     public Animator animator;
-
 
     // Start is called before the first frame update
     void Start()
