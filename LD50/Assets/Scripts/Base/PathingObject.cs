@@ -11,6 +11,7 @@ public class PathingObject : MonoBehaviour
 {
     public Transform mainTarget;
     public Transform[] targets;
+    private float targetCloseDistance = 0.8f;
 
     private int currentWaypoint = 0;
     public float nextWaypointDistance = 3f;
@@ -20,10 +21,10 @@ public class PathingObject : MonoBehaviour
     public float updatePathInterval = 0.5f;
 
     private Seeker seeker;
-    private Rigidbody2D rb;
+    protected Rigidbody2D rb;
 
     public float speed = 200f;
-    private Vector2 direction;
+    protected Vector2 direction;
     private Vector2 force;
 
     protected virtual void Start()
@@ -80,23 +81,29 @@ public class PathingObject : MonoBehaviour
     protected virtual Vector2 GetTargetPosition()
     {
         Transform rtn = mainTarget;
+        float distanceFromTarget = Vector2.Distance(rb.transform.position, rtn.position);
 
         for (var i = 0; i < targets.Length; i++)
         {
-            float distanceFromTarget = Vector2.Distance(rb.transform.position, rtn.position);
             float distanceFromOtherTarget = Vector2.Distance(rb.transform.position, targets[i].position);
 
-            if (distanceFromTarget < distanceFromOtherTarget)
+            if (distanceFromTarget > distanceFromOtherTarget)
             {
                 rtn = targets[i];
+                distanceFromTarget = distanceFromOtherTarget;
             }
+        }
+
+        if (distanceFromTarget < targetCloseDistance)
+        {
+            onCloseToTarget();
         }
 
         return rtn.position;
     }
 
-    protected virtual void onIsClose()
+    protected virtual void onCloseToTarget()
     {
-
+        Debug.Log(name + " is close to target");
     }
 }
