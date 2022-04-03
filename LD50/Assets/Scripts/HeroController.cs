@@ -5,6 +5,11 @@ using Pathfinding;
 
 public class HeroController : MonoBehaviour
 {
+    public Rigidbody2D rb;
+    public SpriteRenderer sr;
+    public Animator animator;
+    public GameObject sword;
+
     public Transform mainTarget;
     public Transform target;
 
@@ -19,10 +24,6 @@ public class HeroController : MonoBehaviour
     private float speed = 200f;
     Vector2 direction;
     Vector2 force;
-
-    public Rigidbody2D rb;
-    public SpriteRenderer sr;
-    public Animator animator;
 
     void Start()
     {
@@ -60,45 +61,48 @@ public class HeroController : MonoBehaviour
             return;
         }
 
-        if (currentWaypoint >= path.vectorPath.Count)
+        reachedEndOfPath = currentWaypoint >= path.vectorPath.Count;
+
+        if (!reachedEndOfPath)
         {
-            reachedEndOfPath = true;
+            direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
+            force = direction * speed * Time.deltaTime;
+
+            rb.AddForce(force);
+
+            float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
+
+            if (distance < nextWaypointDistance)
+            {
+                currentWaypoint++;
+            }
         }
-        else
-        {
-            reachedEndOfPath = false;
-        }
 
-        direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-        force = direction * speed * Time.deltaTime;
-
-        animate();
-
-        rb.AddForce(force);
-
-        float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
-
-        if (distance < nextWaypointDistance)
-        {
-            currentWaypoint++;
-        }
+        Animate();
+        Attack();
     }
 
-    void animate()
+    void Animate()
     {
         bool isMoving = direction != Vector2.zero;
         animator.SetBool("isMoving", isMoving);
 
         if (isMoving)
         {
-            if (direction.x < 0 && !sr.flipX)
+            if (direction.x < 0)
             {
-                sr.flipX = true;
+                transform.localScale = new Vector3(-1, 1, 1);
             }
-            else if (direction.x > 0 && sr.flipX)
+            else if (direction.x > 0)
             {
-                sr.flipX = false;
+                transform.localScale = new Vector3(1, 1, 1);
             }
         }
+    }
+
+    void Attack()
+    {
+        var swordController = sword.GetComponent<SwordController>();
+        swordController.Attack();
     }
 }
